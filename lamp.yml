@@ -1,0 +1,83 @@
+---
+
+- name: Install LAMP
+  hosts: hosts
+
+  become: true
+
+  tasks:
+
+### Apache ###
+
+  - name: Install Apache
+    yum:
+      name: httpd
+      state: present
+
+  - name: Enable Apache
+    shell: systemctl enable httpd.service
+
+  - name: Start Apache
+    service:
+      name: httpd
+      state: started
+
+  - name: Configuring HTML5 Landing Page :)
+    template:
+      src: /etc/ansible/templates/index.html
+      dest: /var/www/html/index.html
+
+  - name: Opening HTTP Port
+    shell: firewall-cmd --add-service=http --permanent
+
+  - name: Reloading firewall-cmd
+    shell: firewall-cmd --reload
+
+
+### Apache ###
+
+### Maria DB ###
+
+  - name: Install Maria DB
+    yum:
+      name: mariadb-server
+      state: present
+
+  - name: Start Maria DB
+    service:
+      name: mariadb
+      state: started
+
+#  - name: Securing Maria DB
+#    expect:
+#      command: mysql_secure_installation
+#      responses:
+#        Set root password? [Y/n]: Y
+#        New password: Pa55w.rd
+#        Re-enter new password: Pa55w.rd
+#        Remove anonymous users? [Y/n]: Y
+#        Disallow root login remotely? [Y/n]: Y
+#        Remove test database and access to it? [Y/n]: Y
+#        Reload privilege tables now? [Y/n]: Y
+  - name: Enable Maria DB
+    shell: systemctl enable mariadb.service
+
+
+### Maria DB ###
+
+###  PHP ###
+
+  - name: Install PHP
+    yum:
+      name: php.x86_64, php-mysql.x86_64
+      state: present
+
+  - name: Restart Apache
+    service:
+      name: httpd
+      state: restarted
+
+  - name: Configuring PHP info page
+    template:
+      src: /etc/ansible/templates/info.php
+      dest: /var/www/html/info.php
