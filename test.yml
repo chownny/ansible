@@ -5,4 +5,4 @@
   tasks:
  
   - name: Just complete as valid YAML please
-    command: echo "Hello World"
+    shell: echo "Hello World"
